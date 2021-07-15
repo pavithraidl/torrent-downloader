@@ -1,0 +1,32 @@
+{
+  "name": "torrent-downloader",
+  "version": "1.0.0",
+  "description": "automatically download torrent files",
+  "main": "index.js",
+  "private": false,
+  "bin": {
+    "run-torrent-download": "bin/run-download"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pavithraidl/torrent-downloader.git"
+  },
+  "keywords": [
+    "torrent",
+    "download"
+  ],
+  "author": "Isuru Liyanage",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pavithraidl/torrent-downloader/issues"
+  },
+  "homepage": "https://github.com/pavithraidl/torrent-downloader#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cross-spawn": "^7.0.3",
+    "node-html-parser": "^4.1.0"
+  }
+}
