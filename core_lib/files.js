@@ -16,7 +16,7 @@ module.exports = {
   projectRootPath: () => {
     const binFolderPath = path.resolve(__dirname);
     if (binFolderPath) {
-      return binFolderPath.replace('/core_lib', '');
+      return binFolderPath.replace('core_lib', '');
     }
     return binFolderPath;
   },

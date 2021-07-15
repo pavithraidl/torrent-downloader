@@ -2,7 +2,7 @@ let HTMLParser = require('node-html-parser');
 const axios = require('axios');
 const fileManager = require('./core_lib/files');
 const projectRootPath = fileManager.projectRootPath();
-const dbFilePath = `${projectRootPath}/db/index.json`;
+const dbFilePath = `${projectRootPath}db/index.json`;
 const spawn = require('cross-spawn');
 let allPages = 207;
 
