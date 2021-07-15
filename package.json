@@ -1,5 +1,5 @@
 {
-  "name": "torrent-downloader",
+  "name": "torrent-movie-downloader",
   "version": "1.0.0",
   "description": "automatically download torrent files",
   "main": "index.js",
