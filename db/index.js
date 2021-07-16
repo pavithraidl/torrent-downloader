@@ -1,6 +1,6 @@
 const Database = require("easy-json-database");
 
-const db = new Database("./db/index.json");
+const db = new Database("E:/plex-library/db/index.json");
 
 module.exports = {
     /**
