@@ -4,16 +4,14 @@ const fileManager = require('./core_lib/files');
 const projectRootPath = fileManager.projectRootPath();
 const dbFilePath = `${projectRootPath}db/index.json`;
 const spawn = require('cross-spawn');
+const db = require('./db/index');
 let allPages = 207;
 
-console.log('starting torrent download...');
-startDownload();
 
 async function startDownload () {
-    await downloadTorrent();
-
-    for (let i = 2; i < allPages; i++) {
-        await axios.get(`https://yts.mx/browse-movies/0/all/all/6/rating/2015-2021/en?page=${i}`).then(async (response) => {
+    for (let i = 1; i < allPages; i++) {
+        const url = i === 1 ? 'https://yts.mx/browse-movies/0/all/all/6/rating/2015-2021/en' : `https://yts.mx/browse-movies/0/all/all/6/rating/2015-2021/en?page=${i}`;
+        await axios.get(url).then(async (response) => {
             const html = HTMLParser.parse(response.data);
             let movies = html.querySelectorAll(".browse-movie-link");
             if (movies && movies.length > 0) {
@@ -29,14 +27,11 @@ async function startDownload () {
                                 for (const toDownloadTorrentFileNode of torrentFileLinks) {
                                     if (toDownloadTorrentFileNode.text.substr(0, 4) === '1080') {
                                         const toDownloadTorrentFileLink = toDownloadTorrentFileNode && toDownloadTorrentFileNode.attributes && toDownloadTorrentFileNode.attributes.href ? toDownloadTorrentFileNode.attributes.href : null;
-                                        let db = fileManager.readFile(dbFilePath);
-                                        if (db !== null && db !== false && toDownloadTorrentFileLink) {
-                                            db = JSON.parse(db);
-                                            db.push({
+                                        if (toDownloadTorrentFileLink) {
+                                            db.createRecord({
                                                 link: toDownloadTorrentFileLink,
                                                 status: 1, // 1 = ready to download, 2 - downloading, 3 - downloaded.
                                             });
-                                            fileManager.writeFile(dbFilePath, JSON.stringify(db));
                                             console.log('URL has added to the DB!\n');
                                         }
                                     }
@@ -47,7 +42,7 @@ async function startDownload () {
                     await sleep(5000);
                 }
             }
-            console.log('\n\nDownload complete!');
+            console.log('\n\nLink fetch complete!');
             console.log('starting torrent download...');
             await downloadTorrent();
         });
@@ -59,26 +54,26 @@ async function startDownload () {
  */
 async function downloadTorrent () {
     process.chdir('E:/plex-library/movies');
-    let db = fileManager.readFile(dbFilePath);
-    if (db !== null && db !== false) {
-        const torrentLinks = JSON.parse(db);
-        let counter = 0;
-        if (torrentLinks && torrentLinks.length > 0) {
-            for (const torrentLink of torrentLinks) {
-                if (torrentLink.status !== 1) {
-                    continue;
-                }
-                torrentLinks[counter++].status = 2;
-                fileManager.writeFile(dbFilePath, JSON.stringify(torrentLinks));
-                await spawn.sync('webtorrent', ['download', torrentLink.link], {stdio: 'inherit'});
-                torrentLinks[counter].status = 3;
-                fileManager.writeFile(dbFilePath, JSON.stringify(torrentLinks));
+    const torrentLinks = db.getRecords();
+    if (torrentLinks && torrentLinks.length > 0) {
+        for (const torrentLink of torrentLinks) {
+            if (torrentLink.status > 2) {
+                continue;
             }
+            db.updateRecord(torrentLink.id, 'status', 2);
+            const childProcessData = await spawn.sync('webtorrent', ['download', torrentLink.link], {stdio: 'inherit', timeout: 3600000});
+            db.updateRecord(torrentLink.id, 'status', childProcessData && childProcessData.status === 1 ? 3 : 4);
         }
     }
     return true;
 }
 
+/**
+ * Sleep the function
+ *
+ * @param ms
+ * @return {Promise<number>}
+ */
 function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);

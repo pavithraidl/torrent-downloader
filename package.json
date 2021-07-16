@@ -1,6 +1,6 @@
 {
   "name": "torrent-movie-downloader",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "automatically download torrent files",
   "main": "index.js",
   "private": false,
@@ -27,6 +27,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cross-spawn": "^7.0.3",
+    "easy-json-database": "^1.5.0",
     "node-html-parser": "^4.1.0"
-  }
+  },
+  "module": "commonjs"
 }
